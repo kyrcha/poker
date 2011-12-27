@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<project name="poker-calc" default="all" basedir=".">
+	<!-- Project-wide settings. All directories are relative to the -->
+	<!-- project root directory -->
+	<!-- Project directories -->
+	<property name="src.dir" value="src"/>
+	<property name="bin.dir" value="bin"/>
+	<property name="lib.dir" value="lib"/>
+	<!-- Global settings -->
+	<property name="javac.debug" value="on"/>
+	<!-- Global "magic" property for <javac> -->
+	<property name="build.compiler" value="modern"/>
+	<path id="classpath">
+		<fileset dir="${bin.dir}" />
+		<fileset dir="${lib.dir}">
+		    <include name="**/*.jar"/>
+ 	 	</fileset>
+	</path>
+	<!-- We also mark the start time of the build, for the log. -->
+	<target name="prepare">
+		<tstamp/>
+		<mkdir dir="${bin.dir}" />
+		<mkdir dir="${lib.dir}" />
+		<echo message="${TSTAMP}"/>
+	 </target>
+
+	<!-- Build the application -->
+	<target name="build" depends="prepare">
+ 	   	<!-- Compile the application classes -->
+    		<javac destdir="${bin.dir}" debug="${debug.flag}" deprecation="on">
+	        <!-- We could have used javac's srcdir attribute -->
+      			<src path="${src.dir}"/>
+		        <classpath refid="classpath"/>
+		    </javac>
+	</target>
+
+    <!-- Delete class files built during previous builds. Leave directories -->
+    <target name="clean">
+        <delete>
+            <fileset dir="${bin.dir}" includes="**/*.class"/>
+        </delete>
+    </target>
+
+    <!-- Delete any created directories and their contents -->
+    <target name="cleanall" depends="clean">
+        <delete dir="${bin.dir}"/>
+    </target>
+    
+    <!-- Build the application -->
+	<target name="run">
+ 	   	<!-- Compile the application classes -->
+        <java classname="info.kyrcha.tiltnet.calculators.Hand" fork="true" classpath="${bin.dir}" />
+	</target>
+
+	<target name="all" depends="build,run"/>
+
+</project>
+
+
+
