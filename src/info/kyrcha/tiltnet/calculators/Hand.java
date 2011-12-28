@@ -240,67 +240,83 @@ public class Hand {
     	return (ahead + (tied / 2)) / (ahead + tied + behind);
     }
     
-    public static double[] handPotential(String holeCards, String boardCards, 
-    		int ahead) {
-    	ahead = (ahead != 1 && ahead !=2) ? 1 : ahead;
+    public static double[] handPotential(String holeCards, 
+    									 String boardCards, 
+    									 int ahead) {
+    	StringBuilder sb, sbOpp;
+    	Card first, second;
+    	int i, j, oppRank, index, myRank, oppBest, 
+    		ourBest;
     	int[][] hp = new int[NUM_REL_RANKS][NUM_REL_RANKS];
     	int[] hpTotal = new int[NUM_REL_RANKS];
     	double[] potentials = new double[NUM_POTENTIALS];
-    	Hand myHand = new Hand(holeCards + boardCards);
-    	int myRank = myHand.rankHand();
+    	sb = new StringBuilder(boardCards);
+    	sbOpp = new StringBuilder(boardCards);
+    	sb.append(holeCards);
     	Deck deck = new Deck();
     	deck.removeCards(holeCards);
     	deck.removeCards(boardCards);
-    	for(int i = 0; i < Card.NUM_CARDS - 1; i++) {
+    	// Rank my hand
+    	Hand myHand = new Hand(sb.toString());
+    	myRank = myHand.rankHand();
+    	for(i = 0; i < Card.NUM_CARDS - 1; i++) {
     		Card oppHoleCard1 = deck.getCard(i);
     		if(oppHoleCard1 == null) continue;
     		deck.remove(oppHoleCard1);
-    		for(int j = i + 1; j < Card.NUM_CARDS; j++) {
+    		sbOpp.append(oppHoleCard1);
+    		for(j = i + 1; j < Card.NUM_CARDS; j++) {
     			Card oppHoleCard2 = deck.getCard(j);
         		if(oppHoleCard2 == null) continue;
         		deck.remove(oppHoleCard2);
-        		String oppHoleCards = oppHoleCard1.toString() + 
-            			oppHoleCard2.toString(); 
-        		Hand oppHand = new Hand(oppHoleCards + boardCards);
-        		int oppRank = oppHand.rankHand();
-        		int index = -1;
+        		sbOpp.append(oppHoleCard2);
+        		// Rank opponent's hand
+        		Hand oppHand = new Hand(sb.toString());
+        		oppRank = oppHand.rankHand();
             	if(myRank > oppRank) index = BETTER;
             	else if(myRank == oppRank) index = TIED;
             	else index = WORSE;
-            	for(int t = 0; t < Card.NUM_CARDS; t++) {
-            		Card next = deck.getCard(t);
-            		if(next == null) continue;
-            		deck.remove(next);
+            	// Simulate cards ahead
+            	for(int t = 0; t < Card.NUM_CARDS + 1 - ahead; t++) {
+            		first = deck.getCard(t);
+            		if(first == null) continue;
+            		deck.remove(first);
+        			sb.append(first.toString());
+        			sbOpp.append(first.toString());
             		if(ahead == 1) {
-            			String board = boardCards + next.toString();
-            			Hand myExpHand = new Hand(holeCards + board);
-            			Hand oppExpHand = new Hand(oppHoleCards + board);
-            			int ourBest = myExpHand.rankHand();
-            			int oppBest = oppExpHand.rankHand();
+            			Hand myExpHand = new Hand(sb.toString());
+            			ourBest = myExpHand.rankHand();
+            			Hand oppExpHand = new Hand(sbOpp.toString());
+            			oppBest = oppExpHand.rankHand();
             			if(ourBest > oppBest) hp[index][BETTER]++;
             			else if(ourBest == oppBest) hp[index][TIED]++;
             			else hp[index][WORSE]++;
             			hpTotal[index]++;
             		} else if(ahead == 2){
-	            		for(int r = 0; r < Card.NUM_CARDS; r++) {
-	            			Card secondNext = deck.getCard(r);
-	            			if(secondNext == null) continue;
-	            			String board = boardCards + next.toString() +
-	            					secondNext.toString();
-	            			Hand myExpHand = new Hand(holeCards + board);
-	            			Hand oppExpHand = new Hand(oppHoleCards + board);
-	            			int ourBest = myExpHand.rankHand();
-	            			int oppBest = oppExpHand.rankHand();
+	            		for(int r = t+1; r < Card.NUM_CARDS; r++) {
+	            			second = deck.getCard(r);
+	            			if(second == null) continue;
+	            			sb.append(second.toString());
+	            			sbOpp.append(second.toString());
+	            			Hand myExpHand = new Hand(sb.toString());
+	            			ourBest = myExpHand.rankHand();
+	            			Hand oppExpHand = new Hand(sbOpp.toString());
+	            			oppBest = oppExpHand.rankHand();
 	            			if(ourBest > oppBest) hp[index][BETTER]++;
 	            			else if(ourBest == oppBest) hp[index][TIED]++;
 	            			else hp[index][WORSE]++;
 	            			hpTotal[index]++;
+	            			sb.delete(12, 14);
+	            			sbOpp.delete(12, 14);
 	            		}
             		}
-            		deck.putBack(next);
+            		sb.delete(10, 12);
+            		sbOpp.delete(10, 12);
+            		deck.putBack(first);
             	}
+            	sbOpp.delete(8, 10);
             	deck.putBack(oppHoleCard2);
     		}
+    		sbOpp.delete(6, 8);
     		deck.putBack(oppHoleCard1);
     	}
     	
@@ -573,7 +589,7 @@ public class Hand {
 				handPotential("7h9h", "8h6c4h", 2)[0]);
     	// Benchmark hand potential
     	long sum = 0;
-    	int runs = 10;
+    	int runs = 100;
     	for(int i = 0; i < runs; i++) {
     		Deck deck = new Deck();
     		deck.shuffle();
