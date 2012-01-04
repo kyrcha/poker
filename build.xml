@@ -6,6 +6,7 @@
 	<property name="src.dir" value="src"/>
 	<property name="bin.dir" value="bin"/>
 	<property name="lib.dir" value="lib"/>
+        <property name="dist.dir" value="dist"/>
 	<!-- Global settings -->
 	<property name="javac.debug" value="on"/>
 	<!-- Global "magic" property for <javac> -->
@@ -50,6 +51,11 @@
 	<target name="run">
  	   	<!-- Compile the application classes -->
         <java classname="info.kyrcha.tiltnet.calculators.Hand" fork="true" classpath="${bin.dir}" />
+	</target>
+	
+	<!-- Make the jar file -->
+	<target name="jar" description="JARs the Task" depends="build">
+	    <jar destfile="${dist.dir}/pokercalc.jar" basedir="${bin.dir}"/>
 	</target>
 
 	<target name="all" depends="build,run"/>

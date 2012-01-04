@@ -354,7 +354,7 @@ public class Hand {
     	}
     }
     
-    private final static int rankHand(Hand hand) {
+    public final static int rankHand(Hand hand) {
     	boolean[] hands = new boolean[NUM_HANDS];
     	boolean foundHand = false;
     	int[] ranks = new int[Card.NUM_RANKS];
