@@ -6,7 +6,7 @@
 	<property name="src.dir" value="src"/>
 	<property name="bin.dir" value="bin"/>
 	<property name="lib.dir" value="lib"/>
-        <property name="dist.dir" value="dist"/>
+    <property name="dist.dir" value="dist"/>
 	<!-- Global settings -->
 	<property name="javac.debug" value="on"/>
 	<!-- Global "magic" property for <javac> -->
@@ -20,19 +20,19 @@
 	<!-- We also mark the start time of the build, for the log. -->
 	<target name="prepare">
 		<tstamp/>
-		<mkdir dir="${bin.dir}" />
-		<mkdir dir="${lib.dir}" />
 		<echo message="${TSTAMP}"/>
 	 </target>
 
 	<!-- Build the application -->
 	<target name="build" depends="prepare">
  	   	<!-- Compile the application classes -->
-    		<javac destdir="${bin.dir}" debug="${debug.flag}" deprecation="on">
+    		<javac destdir="${bin.dir}" debug="${debug.flag}" deprecation="on" includeAntRuntime="false">
 	        <!-- We could have used javac's srcdir attribute -->
       			<src path="${src.dir}"/>
 		        <classpath refid="classpath"/>
 		    </javac>
+		  <tstamp/>
+		<echo message="${TSTAMP}"/>
 	</target>
 
     <!-- Delete class files built during previous builds. Leave directories -->
